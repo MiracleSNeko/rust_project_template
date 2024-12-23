@@ -20,3 +20,8 @@ fn test2() {
 fn test3() {
     assert_eq!(40.0 + 2.0, 42.0);
 }
+
+#[test]
+fn test4() {
+    assert_eq!(42.0, 40 as f64 + 2.0);
+}
