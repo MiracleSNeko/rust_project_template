@@ -15,3 +15,13 @@ fn test1() {
 fn test2() {
     assert_eq!(String::from("40") + "2", String::from("402"));
 }
+
+#[test]
+fn test3() {
+    assert_eq!(40.0 + 2.0, 42.0);
+}
+
+#[test]
+fn test4() {
+    assert_eq!(42.0, 40 as f64 + 2.0);
+}
