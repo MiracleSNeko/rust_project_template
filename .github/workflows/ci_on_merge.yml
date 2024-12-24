@@ -6,6 +6,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: -C debuginfo=0 -D warnings
 
 jobs:
   check-and-build:
@@ -31,11 +33,5 @@ jobs:
           components: rustfmt, clippy
       - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- cargo-check
-        env:
-          CARGO_INCREMENTAL: 0
-          RUSTFLAGS: -C debuginfo=0 -D warnings
       - name: Build binary on debug mode for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo build --all --verbose
-        env:
-          CARGO_INCREMENTAL: 0
-          RUSTFLAGS: -C debuginfo=0 -D warnings

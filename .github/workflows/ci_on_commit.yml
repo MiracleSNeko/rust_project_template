@@ -1,0 +1,70 @@
+name: Commit CI
+
+on:
+  push:
+    branches: [feature/**]
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: -C debuginfo=0 -D warnings
+
+jobs:
+  check-commit-message:
+    runs-on: ubuntu-latest
+    outputs:
+      is_draft: ${{ steps.check-commit.outputs.is_draft }}
+    steps:
+      - name: Check if this commit is a draft
+        id: check-commit
+        run: echo "is_draft=${{ startsWith(github.event.head_commit.message, 'draft') }}" >> $GITHUB_ENV
+
+  cargo-check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
+    runs-on: ${{ matrix.os }}
+    needs: check-commit-message
+    if: needs.check-commit-message.outputs.is_draft == 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-check
+
+  cargo-lints:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
+    runs-on: ${{ matrix.os }}
+    needs: check-commit-message
+    if: needs.check-commit-message.outputs.is_draft == 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: clippy, rustfmt
+      - name: Run cargo-clippy for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-clippy
+      - name: Run cargo-fmt for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-fmt

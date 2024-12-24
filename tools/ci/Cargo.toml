@@ -8,3 +8,6 @@ anyhow = "1.0.95"
 argh = "0.1.13"
 bitflags = "2.6.0"
 xshell = "0.2.7"
+
+[lints]
+workspace = true
