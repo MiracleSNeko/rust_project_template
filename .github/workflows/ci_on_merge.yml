@@ -1,7 +1,7 @@
 name: Merge CI
 
 on:
-  pull_request:
+  push:
     branches: [develop]
 
 env:
@@ -30,7 +30,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
       - name: Build for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo build --all --verbose
+        run: cargo run -p ci -- cargo-check 
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: -C debuginfo=0 -D warnings
