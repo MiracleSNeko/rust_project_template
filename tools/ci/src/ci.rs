@@ -1,7 +1,7 @@
 //! This CI command line tool is copied from Bevy project.
 
 use crate::{
-    commands::{CargoCheckCommand, CargoClippyCommand, CargoFormatCommand},
+    commands::{CargoCheckCommand, CargoClippyCommand, CargoFormatCommand, CargoTestCommand},
     run::{Run, RunFlags, RunnableCommand},
 };
 use anyhow::Result;
@@ -68,6 +68,7 @@ pub enum Command {
     CargoCheck(CargoCheckCommand),
     CargoClippy(CargoClippyCommand),
     CargoFormat(CargoFormatCommand),
+    CargoTest(CargoTestCommand),
 }
 
 impl Run for Command {
@@ -76,6 +77,7 @@ impl Run for Command {
             Command::CargoCheck(command) => command.run(sh, flags),
             Command::CargoClippy(command) => command.run(sh, flags),
             Command::CargoFormat(command) => command.run(sh, flags),
+            Command::CargoTest(command) => command.run(sh, flags),
         }
     }
 }
