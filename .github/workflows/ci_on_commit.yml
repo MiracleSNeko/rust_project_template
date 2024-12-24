@@ -53,7 +53,7 @@ jobs:
     if: needs.check-commit-message.outputs.is_draft != 'true'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin
@@ -79,7 +79,7 @@ jobs:
     if: needs.check-commit-message.outputs.is_draft == 'false'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin
