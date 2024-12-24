@@ -33,5 +33,7 @@ jobs:
           components: rustfmt, clippy
       - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- cargo-check
+      - name: Run cargo-check on test cases for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-check-test
       - name: Build binary on debug mode for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo build --all --verbose

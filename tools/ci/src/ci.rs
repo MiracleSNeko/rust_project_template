@@ -1,7 +1,10 @@
 //! This CI command line tool is copied from Bevy project.
 
 use crate::{
-    commands::{CargoCheckCommand, CargoClippyCommand, CargoFormatCommand, CargoTestCommand},
+    commands::{
+        CargoCheckCommand, CargoCheckTestCommand, CargoClippyCommand, CargoFormatCommand,
+        CargoTestCommand,
+    },
     run::{Run, RunFlags, RunnableCommand},
 };
 use anyhow::Result;
@@ -66,6 +69,7 @@ impl CiTools {
 #[argh(subcommand)]
 pub enum Command {
     CargoCheck(CargoCheckCommand),
+    CargoCheckTest(CargoCheckTestCommand),
     CargoClippy(CargoClippyCommand),
     CargoFormat(CargoFormatCommand),
     CargoTest(CargoTestCommand),
@@ -75,6 +79,7 @@ impl Run for Command {
     fn run<'a>(&self, sh: &'a Shell, flags: RunFlags) -> Vec<RunnableCommand<'a>> {
         match self {
             Command::CargoCheck(command) => command.run(sh, flags),
+            Command::CargoCheckTest(command) => command.run(sh, flags),
             Command::CargoClippy(command) => command.run(sh, flags),
             Command::CargoFormat(command) => command.run(sh, flags),
             Command::CargoTest(command) => command.run(sh, flags),
