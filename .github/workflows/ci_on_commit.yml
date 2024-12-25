@@ -26,7 +26,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == 'false'
+    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -50,7 +50,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == 'false'
+    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -76,7 +76,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == 'false'
+    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
