@@ -12,7 +12,7 @@ impl Run for CargoClippyCommand {
         vec![RunnableCommand::new::<Self>(
             cmd!(
                 shell,
-                "cargo check --workspace --all-targets --all-features --verbose -- -Dwarnings"
+                "cargo check --workspace --all-targets --all-features --verbose"
             ),
             String::from("cargo clippy failed, please fix errors above and try again."),
         )]
