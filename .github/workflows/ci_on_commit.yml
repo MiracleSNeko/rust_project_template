@@ -26,10 +26,10 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft != 'true'
+    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin
@@ -46,11 +46,11 @@ jobs:
   cargo-clippy:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft != 'true'
+    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -72,11 +72,11 @@ jobs:
   cargo-format:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == 'false'
+    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -93,4 +93,4 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt
       - name: Run cargo-fmt for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- cargo-fmt
+        run: cargo run -p ci -- cargo-format

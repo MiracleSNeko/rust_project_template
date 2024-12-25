@@ -10,7 +10,10 @@ pub struct CargoCheckTestCommand {}
 impl Run for CargoCheckTestCommand {
     fn run<'a>(&self, shell: &'a Shell, _flags: RunFlags) -> Vec<RunnableCommand<'a>> {
         vec![RunnableCommand::new::<Self>(
-            cmd!(shell, "cargo check --workspace --tests --all-features --verbose"),
+            cmd!(
+                shell,
+                "cargo check --workspace --tests --all-features --verbose"
+            ),
             String::from("cargo check failed, please fix errors above and try again."),
         )]
     }
