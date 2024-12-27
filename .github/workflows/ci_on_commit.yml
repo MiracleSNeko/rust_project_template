@@ -95,11 +95,10 @@ jobs:
             ~/.cargo/git
             ./target
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/install@v0.1
+      - uses: dtolnay/rust-toolchain@master
         with:
-          crate: typo-cli
-          version: latest
-          use-tool-cache: true
+          toolchain: ${{ matrix.rust }}
+          components: typo
       - name: Run typo for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- typo
 
