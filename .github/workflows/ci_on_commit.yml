@@ -19,30 +19,6 @@ jobs:
         id: check-commit
         run: echo "is_draft=${{ startsWith(github.event.head_commit.message, 'draft') }}" >> $GITHUB_ENV
 
-  cargo-check:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, nightly]
-    runs-on: ${{ matrix.os }}
-    needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git
-            ./target
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- cargo-check
-      - name: Run cargo-check on test cases for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- cargo-check-test
-
   cargo-clippy:
     strategy:
       matrix:
@@ -73,7 +49,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        rust: [stable, nightly]
+        rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
     if: needs.check-commit-message.outputs.is_draft == false
@@ -94,3 +70,78 @@ jobs:
           components: rustfmt
       - name: Run cargo-fmt for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- cargo-format
+
+  typo:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: [stable]
+    runs-on: ${{ matrix.os }}
+    needs: check-commit-message
+    if: needs.check-commit-message.outputs.is_draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - uses: actions-rs/install@0.1
+        with:
+          crate: typo-cli
+          version: latest
+          use-tool-cache: true
+      - name: Run typo for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- typo
+
+  cargo-check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
+    runs-on: ${{ matrix.os }}
+    needs: [check-commit-message, cargo-clippy, cargo-format]
+    if: needs.check-commit-message.outputs.is_draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-check
+      - name: Run cargo-check on test cases for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-check-test
+      - name: Run cargo-check on examples for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-check-example
+
+  check-documents:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: [stable]
+    runs-on: ${{ matrix.os }}
+    needs: [check-commit-message, cargo-clippy, cargo-format, cargo-check]
+    if: needs.check-commit-message.outputs.is_draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: Check documents for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-doc
