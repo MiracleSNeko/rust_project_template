@@ -4,14 +4,30 @@ use xshell::{cmd, Shell};
 
 #[derive(FromArgs, Default)]
 #[argh(subcommand, name = "cargo-check")]
-#[argh(description = "run `cargo check` on all packages")]
+#[argh(description = "run `cargo check` on all targets")]
 pub struct CargoCheckCommand {}
 
 impl Run for CargoCheckCommand {
     fn run<'a>(&self, shell: &'a Shell, _flags: RunFlags) -> Vec<RunnableCommand<'a>> {
-        vec![RunnableCommand::new::<Self>(
-            cmd!(shell, "cargo check --workspace --all-features --verbose"),
-            String::from("cargo check failed, please fix errors above and try again."),
-        )]
+        vec![
+            RunnableCommand::new::<Self>(
+                cmd!(shell, "cargo check --workspace --all-features --verbose"),
+                String::from("cargo check failed, please fix errors above/below and try again."),
+            ),
+            RunnableCommand::new::<Self>(
+                cmd!(
+                    shell,
+                    "cargo check --workspace --tests --all-features --verbose"
+                ),
+                String::from("cargo check failed, please fix errors above/below and try again."),
+            ),
+            RunnableCommand::new::<Self>(
+                cmd!(
+                    shell,
+                    "cargo check --workspace --examples --all-features --verbose"
+                ),
+                String::from("cargo check failed, please fix errors above/below and try again."),
+            ),
+        ]
     }
 }

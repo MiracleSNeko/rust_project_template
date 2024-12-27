@@ -11,7 +11,7 @@ impl Run for CargoFormatCommand {
     fn run<'a>(&self, shell: &'a Shell, _flags: RunFlags) -> Vec<RunnableCommand<'a>> {
         vec![RunnableCommand::new::<Self>(
             cmd!(shell, "cargo fmt --all -- --check"),
-            String::from("cargo fmt failed, please fix errors above and try again."),
+            String::from("cargo fmt failed, please fix errors above/below and try again."),
         )]
     }
 }

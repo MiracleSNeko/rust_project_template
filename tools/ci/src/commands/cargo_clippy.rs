@@ -14,7 +14,7 @@ impl Run for CargoClippyCommand {
                 shell,
                 "cargo check --workspace --all-targets --all-features --verbose"
             ),
-            String::from("cargo clippy failed, please fix errors above and try again."),
+            String::from("cargo clippy failed, please fix errors above/below and try again."),
         )]
     }
 }

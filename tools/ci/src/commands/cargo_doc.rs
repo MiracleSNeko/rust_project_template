@@ -14,7 +14,7 @@ impl Run for CargoDocCommand {
                 shell,
                 "cargo doc --workspace --all-features --no-deps --document-private-items --verbose --keep-going"
             ),
-            String::from("cargo doc failed, please fix errors above and try again."),
+            String::from("cargo doc failed, please fix errors above/below and try again."),
         )]
     }
 }
