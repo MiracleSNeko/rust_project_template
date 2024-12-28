@@ -177,9 +177,9 @@ jobs:
       - uses: jwlawson/actions-setup-cmake@v1
         with:
           cmake-version: "latest"
-      - uses: llvm/llvm-project/.github/actions/setup-clang@main
+      - uses: egor-tensin/setup-clang@v1
         with:
-          clang-version: "latest"
+          version: "latest"
       - name: Verify cmake and clang installation
         run: cmake --version &&  clang --version
       - name: Check if mirai is installed
