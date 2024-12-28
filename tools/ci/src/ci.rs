@@ -3,7 +3,7 @@
 use crate::{
     commands::{
         CargoCheckCommand, CargoClippyCommand, CargoDocCommand, CargoFormatCommand,
-        CargoMiraiCommand, CargoTestCommand, TypoCommand,
+        CargoKaniCommand, CargoMiraiCommand, CargoTestCommand, TypoCommand,
     },
     run::{Run, RunFlags, RunnableCommand},
 };
@@ -72,6 +72,7 @@ pub enum Command {
     CargoClippy(CargoClippyCommand),
     CargoDoc(CargoDocCommand),
     CargoFormat(CargoFormatCommand),
+    CargoKani(CargoKaniCommand),
     CargoMirai(CargoMiraiCommand),
     CargoTest(CargoTestCommand),
     Typo(TypoCommand),
@@ -84,6 +85,7 @@ impl Run for Command {
             Command::CargoClippy(command) => command.run(sh, flags),
             Command::CargoDoc(command) => command.run(sh, flags),
             Command::CargoFormat(command) => command.run(sh, flags),
+            Command::CargoKani(command) => command.run(sh, flags),
             Command::CargoMirai(command) => command.run(sh, flags),
             Command::CargoTest(command) => command.run(sh, flags),
             Command::Typo(command) => command.run(sh, flags),

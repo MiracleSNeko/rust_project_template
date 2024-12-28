@@ -23,6 +23,12 @@ jobs:
         run: |
           echo "This commit is a draft, skip the following steps."
           exit 0
+      - name: Check if commit message is signed off by the author
+        run: ｜
+          if ! grep -q "Signed-off-by" <<< "${{ github.event.head_commit.message }}"; then
+          echo "Commit message is not signed off by the author."
+          exit 1
+          fi
 
   cargo-clippy:
     strategy:
