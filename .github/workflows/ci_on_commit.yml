@@ -14,10 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_draft: ${{ steps.check-commit.outputs.is_draft }}
+    env:
+      COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
     steps:
       - name: Check if this commit is a draft
         id: check-commit
-        run: echo "is_draft=${{ startsWith(github.event.head_commit.message, 'draft') }}" >> $GITHUB_ENV
+        run: echo "is_draft=${{ startsWith(env.COMMIT_MESSAGE, 'draft') }}" >> $GITHUB_ENV
       - name: Skip if this commit is a draft
         if: steps.check-commit.outputs.is_draft == 'true'
         run: |
@@ -25,7 +27,7 @@ jobs:
           exit 0
       - name: Check if commit message is signed off by the author
         run: |
-          if ! echo ${{ github.event.head_commit.message }} | grep -q "Signed-off-by"; then
+          if ! echo $COMMIT_MESSAGE | grep -q "Signed-off-by"; then
             echo "Commit message is not signed off by the author."
             exit 1
           fi
