@@ -174,12 +174,9 @@ jobs:
             ~/.cargo/git
             ./target
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
-      - uses: jwlawson/actions-setup-cmake@v1
+      - uses: actions/tool-cache@v3
         with:
-          cmake-version: "3.x"
-      - uses: llvm/llvm-project@main
-        with:
-          clang-version: "latest"
+          tool: clang, cmake
       - name: Verify cmake and clang installation
         run: cmake --version &&  clang --version
       - name: Check if mirai is installed
