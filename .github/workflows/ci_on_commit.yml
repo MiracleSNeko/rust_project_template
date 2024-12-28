@@ -198,4 +198,4 @@ jobs:
           cargo install --locked --path ./checker
           cd $GITHUB_WORKSPACE
       - name: Run mirai for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- mirai
+        run: cargo run -p ci -- cargo-mirai
