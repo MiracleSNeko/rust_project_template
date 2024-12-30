@@ -37,7 +37,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    # if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -182,11 +182,9 @@ jobs:
         run: cmake --version &&  clang --version
       - name: Check if mirai is installed
         id: check-mirai-installed
-        env:
-          MIRAI_VERSION: cargo mirai --version
-        run: echo "is_mirai_exist=${{ startsWith(env.MIRAI_VERSION, 'mirai') }}" >> $GITHUB_ENV
+        run: echo "mirai_version=$(cargo mirai --version)" >> $GITHUB_OUTPUT
       - name: Install mirai if needed
-        if: ${{ steps.check-mirai-installed.outputs.is_mirai_exists == 'false' }}
+        if: ${{ startsWith(steps.check-mirai-installed.outputs.mirai_version, 'mirai') == 'false' }}
         run: |
           git clone https://github.com/endorlabs/MIRAI.git
           cd MIRAI
