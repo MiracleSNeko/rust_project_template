@@ -138,7 +138,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
       [check-commit-message, cargo-clippy, cargo-format, typo, check-documents]
-    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
