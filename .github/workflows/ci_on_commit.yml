@@ -24,7 +24,6 @@ jobs:
         if: ${{ startsWith(env.COMMIT_MESSAGE, 'draft') }}
         run: |
           echo "This commit is a draft, skip the following steps."
-          exit 0
       - name: Check if commit message is signed off by the author
         run: |
           if ! echo $COMMIT_MESSAGE | grep -q "Signed-off-by"; then
@@ -39,6 +38,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -64,6 +64,7 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -89,6 +90,7 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -114,6 +116,7 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -136,6 +139,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
       [check-commit-message, cargo-clippy, cargo-format, typo, check-documents]
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -157,6 +161,7 @@ jobs:
         rust: [nightly]
     runs-on: ${{ matrix.os }}
     needs: [check-commit-message, cargo-check]
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -179,7 +184,7 @@ jobs:
       - name: Check if mirai is installed
         id: check-mirai-installed
         run: |
-          if [-f ~/.cargo/bin/mirai]; then
+          if [ -f ~/.cargo/bin/mirai ]; then
             echo "is_mirai_exists=true" >> $GITHUB_ENV
           else
             echo "is_mirai_exists=false" >> $GITHUB_ENV
