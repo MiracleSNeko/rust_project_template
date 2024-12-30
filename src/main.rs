@@ -1,14 +1,5 @@
 fn main() {
-    let home = std::env::var("HOME").unwrap();
-    for entry in walkdir::WalkDir::new(home + "/.rustup/toolchains")
-        .min_depth(1)
-        .max_depth(1)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|e| e.file_type().is_dir())
-    {
-        println!("Found toolchain: {}", entry.path().display());
-    }
+    println!("Hello, world!");
 }
 
 pub fn add(a: i32, b: i32) -> i32 {
