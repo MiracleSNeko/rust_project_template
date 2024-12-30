@@ -37,7 +37,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
+    # if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -56,7 +56,7 @@ jobs:
       - name: Run cargo-clippy for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- cargo-clippy
       - name: Temporary debug
-        run: echo ${{ needs.check-commit-message.outputs.is_draft }}
+        run: cat $GITHUB_OUTPUT && cat $GITHUB_ENV
 
   cargo-format:
     strategy:
