@@ -21,7 +21,7 @@ jobs:
         id: check-commit
         run: echo "is_draft=${{ startsWith(env.COMMIT_MESSAGE, 'draft') }}" >> $GITHUB_ENV
       - name: Skip if this commit is a draft
-        if: steps.check-commit.outputs.is_draft == 'true'
+        if: ${{ steps.check-commit.outputs.is_draft == 'true' }}
         run: |
           echo "This commit is a draft, skip the following steps."
           exit 0
@@ -39,7 +39,6 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -65,7 +64,6 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -91,7 +89,6 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -117,7 +114,6 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -140,7 +136,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs:
       [check-commit-message, cargo-clippy, cargo-format, typo, check-documents]
-    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -162,7 +157,6 @@ jobs:
         rust: [nightly]
     runs-on: ${{ matrix.os }}
     needs: [check-commit-message, cargo-check]
-    if: needs.check-commit-message.outputs.is_draft == false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -191,7 +185,7 @@ jobs:
             echo "is_mirai_exists=false" >> $GITHUB_ENV
           fi
       - name: Install mirai if needed
-        if: steps.check-mirai-installed.outputs.is_mirai_exists == false
+        if: ${{ steps.check-mirai-installed.outputs.is_mirai_exists == false }}
         run: |
           git clone https://github.com/endorlabs/MIRAI.git
           cd MIRAI
