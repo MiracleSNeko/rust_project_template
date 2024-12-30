@@ -187,13 +187,6 @@ jobs:
         env:
           MIRAI_VERSION: cargo mirai --version
         run: echo "is_mirai_exist=${{ startsWith(env.MIRAI_VERSION, 'mirai') }}" >> $GITHUB_OUTPUT
-        # run: |
-        #   if [ -f ~/.cargo/bin/mirai ]; then
-        #     echo "is_mirai_exists=true" >> $GITHUB_ENV
-        #   else
-        #     echo "is_mirai_exists=false" >> $GITHUB_ENV
-        #   fi
-        #   cat $GITHUB_ENV
       - name: Install mirai if needed
         if: ${{ steps.check-mirai-installed.outputs.is_mirai_exists == false }}
         run: |
