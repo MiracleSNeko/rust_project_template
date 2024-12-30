@@ -21,7 +21,7 @@ jobs:
         id: check-commit
         run: echo "is_draft=${{ startsWith(env.COMMIT_MESSAGE, 'draft') }}" >> $GITHUB_ENV
       - name: Skip if this commit is a draft
-        if: ${{ steps.check-commit.outputs.is_draft }} == true
+        if: ${{ steps.check-commit.outputs.is_draft == true }}
         run: echo "This commit is a draft, skip the following steps."
       - name: Check if commit message is signed off by the author
         run: |
@@ -37,7 +37,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-
+    if: ${{ needs.check-commit-message.outputs.is_draft == false }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -54,8 +54,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: clippy
       - name: Run cargo-clippy for ${{ matrix.os }} with ${{ matrix.rust }}
-        if: ${{ needs.check-commit-message.outputs.is_draft }} == false
         run: cargo run -p ci -- cargo-clippy
+      - name: Temporary debug
+        run: echo ${{ needs.check-commit-message.outputs.is_draft }}
 
   cargo-format:
     strategy:
@@ -190,9 +191,9 @@ jobs:
           else
             echo "is_mirai_exists=false" >> $GITHUB_ENV
           fi
-          echo $GITHUB_ENV
+          cat $GITHUB_ENV
       - name: Install mirai if needed
-        if: ${{ steps.check-mirai-installed.outputs.is_mirai_exists }} == false && ${{ needs.check-commit-message.outputs.is_draft }} == false
+        if: ${{ steps.check-mirai-installed.outputs.is_mirai_exists  == false &&  needs.check-commit-message.outputs.is_draft }} == false
         run: |
           git clone https://github.com/endorlabs/MIRAI.git
           cd MIRAI
