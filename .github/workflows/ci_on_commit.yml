@@ -21,7 +21,7 @@ jobs:
         id: check-commit
         run: echo "is_draft=${{ startsWith(env.COMMIT_MESSAGE, 'draft') }}" >> $GITHUB_ENV
       - name: Skip if this commit is a draft
-        if: ${{ steps.check-commit.outputs.is_draft == 'true' }}
+        if: ${{ steps.check-commit.outputs.is_draft == true }}
         run: |
           echo "This commit is a draft, skip the following steps."
           exit 0
