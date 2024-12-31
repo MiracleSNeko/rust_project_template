@@ -183,7 +183,7 @@ jobs:
       - name: Check if mirai is installed
         id: check-mirai-installed
         run: echo "mirai_version=$(cargo mirai --version 2>&1 || true)" >> $GITHUB_OUTPUT
-      - name: Tempory debug
+      - name: Temporary debug
         run: echo ${{ steps.check-mirai-installed.outputs.mirai_version }} && cat $GITHUB_OUTPUT
       - name: Install mirai if needed
         if: ${{ startsWith(steps.check-mirai-installed.outputs.mirai_version, 'mirai') == 'false' }}
