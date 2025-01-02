@@ -182,7 +182,7 @@ jobs:
         run: cmake --version &&  clang --version
       - name: Check if mirai is installed
         id: check-mirai-installed
-        run: echo "mirai_version=$(cargo mirai --version)" >> $GITHUB_OUTPUT
+        run: echo "mirai_version=$(cargo mirai --version 2>&1)" >> $GITHUB_OUTPUT
       - name: Install mirai if needed
         if: ${{ startsWith(steps.check-mirai-installed.outputs.mirai_version, 'mirai') == 'false' }}
         run: |
