@@ -1,0 +1,18 @@
+[files]
+extend-exclude = [
+  "*.pbxproj", # metadata file
+  "*.patch",   # Automatically generated files that should not be manually modified.
+  "*.bin",     # Binary files
+  ".git/",     # Version control files
+]
+ignore-hidden = false
+
+# Match Inside a Word - Case Insensitive
+[default.extend-words]
+LOD = "LOD" # Level of detail
+TOI = "TOI" # Time of impact
+
+[default]
+locale = "en-us"
+# Ignored typos regexes
+extend-ignore-identifiers-re = []
