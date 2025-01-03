@@ -194,7 +194,7 @@ jobs:
           fi
           rm -f "$temp_file"
       - name: Install mirai if needed
-        if: ${{ steps.check-mirai-installed.outputs.mirai_version == 'false' }}
+        if: ${{ steps.check-mirai-installed.outputs.is_mirai_exist == 'false' }}
         run: |
           git clone https://github.com/endorlabs/MIRAI.git
           cd MIRAI
