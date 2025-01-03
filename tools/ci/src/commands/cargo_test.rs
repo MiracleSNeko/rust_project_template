@@ -14,12 +14,18 @@ impl Run for CargoTestCommand {
             .then_some("--no-fail-fast")
             .unwrap_or_default();
 
-        vec![RunnableCommand::new::<Self>(
-            cmd!(
-                shell,
-                "cargo test --workspace --lib --bins --tests {continue_on_failure}"
+        vec![
+            RunnableCommand::new::<Self>(
+                cmd!(
+                    shell,
+                    "cargo test --workspace --lib --bins --tests {continue_on_failure}"
+                ),
+                String::from("cargo test failed, please fix errors above/below and try again."),
             ),
-            String::from("cargo test failed, please fix errors above and try again."),
-        )]
+            RunnableCommand::new::<Self>(
+                cmd!(shell, "cargo test --workspace --doc {continue_on_failure}"),
+                String::from("cargo test failed, please fix errors above/below and try again."),
+            ),
+        ]
     }
 }

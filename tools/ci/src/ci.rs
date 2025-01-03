@@ -2,8 +2,8 @@
 
 use crate::{
     commands::{
-        CargoCheckCommand, CargoCheckExampleCommand, CargoCheckTestCommand, CargoClippyCommand,
-        CargoDocCommand, CargoFormatCommand, CargoTestCommand, CargoTestDocCommand, TypoCommand,
+        CargoCheckCommand, CargoClippyCommand, CargoDocCommand, CargoFormatCommand,
+        CargoKaniCommand, CargoMiraiCommand, CargoTestCommand, TypoCommand,
     },
     run::{Run, RunFlags, RunnableCommand},
 };
@@ -32,9 +32,9 @@ impl CiTools {
             // Will step into the subdirectory permanently if it is set
             let _ = command.subdir.map(|path| shell.push_dir(path));
 
-            if command.command.envs(command.env).run().is_err() {
+            if let Err(err) = command.command.envs(command.env).run() {
                 failures.push(format!(
-                    "- {name}: {message}",
+                    "- {name}: {message}\n -> {err}",
                     name = command.name,
                     message = command.failure_message
                 ));
@@ -69,13 +69,12 @@ impl CiTools {
 #[argh(subcommand)]
 pub enum Command {
     CargoCheck(CargoCheckCommand),
-    CargoCheckExample(CargoCheckExampleCommand),
-    CargoCheckTest(CargoCheckTestCommand),
     CargoClippy(CargoClippyCommand),
     CargoDoc(CargoDocCommand),
     CargoFormat(CargoFormatCommand),
+    CargoKani(CargoKaniCommand),
+    CargoMirai(CargoMiraiCommand),
     CargoTest(CargoTestCommand),
-    CargoTestDoc(CargoTestDocCommand),
     Typo(TypoCommand),
 }
 
@@ -83,13 +82,12 @@ impl Run for Command {
     fn run<'a>(&self, sh: &'a Shell, flags: RunFlags) -> Vec<RunnableCommand<'a>> {
         match self {
             Command::CargoCheck(command) => command.run(sh, flags),
-            Command::CargoCheckExample(command) => command.run(sh, flags),
-            Command::CargoCheckTest(command) => command.run(sh, flags),
             Command::CargoClippy(command) => command.run(sh, flags),
             Command::CargoDoc(command) => command.run(sh, flags),
             Command::CargoFormat(command) => command.run(sh, flags),
+            Command::CargoKani(command) => command.run(sh, flags),
+            Command::CargoMirai(command) => command.run(sh, flags),
             Command::CargoTest(command) => command.run(sh, flags),
-            Command::CargoTestDoc(command) => command.run(sh, flags),
             Command::Typo(command) => command.run(sh, flags),
         }
     }

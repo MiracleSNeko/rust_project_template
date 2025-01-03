@@ -14,10 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_draft: ${{ steps.check-commit.outputs.is_draft }}
+    env:
+      COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
     steps:
+      - name: Check if commit message is signed off by the author
+        run: |
+          if ! echo $COMMIT_MESSAGE | grep -q "Signed-off-by"; then
+            echo "Commit message is not signed off by the author."
+            exit 1
+          fi
       - name: Check if this commit is a draft
         id: check-commit
-        run: echo "is_draft=${{ startsWith(github.event.head_commit.message, 'draft') }}" >> $GITHUB_ENV
+        run: echo "is_draft=${{ startsWith(env.COMMIT_MESSAGE, 'draft') }}" >> $GITHUB_OUTPUT
+      - name: Skip if this commit is a draft
+        if: ${{ steps.check-commit.outputs.is_draft == true }}
+        run: echo "This commit is a draft, skip the following steps."
 
   cargo-clippy:
     strategy:
@@ -26,7 +37,7 @@ jobs:
         rust: [stable, nightly]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -52,7 +63,7 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -78,7 +89,7 @@ jobs:
         rust: [stable]
     runs-on: ${{ matrix.os }}
     needs: check-commit-message
-    if: needs.check-commit-message.outputs.is_draft == false
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -90,39 +101,12 @@ jobs:
             ~/.cargo/git
             ./target
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
-      - uses: actions-rs/install@0.1
+      - uses: actions-rs/cargo@v1
         with:
-          crate: typo-cli
-          version: latest
-          use-tool-cache: true
+          command: install
+          args: typos-cli
       - name: Run typo for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- typo
-
-  cargo-check:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, nightly]
-    runs-on: ${{ matrix.os }}
-    needs: [check-commit-message, cargo-clippy, cargo-format]
-    if: needs.check-commit-message.outputs.is_draft == false
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git
-            ./target
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
-      - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- cargo-check
-      - name: Run cargo-check on test cases for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- cargo-check-test
-      - name: Run cargo-check on examples for ${{ matrix.os }} with ${{ matrix.rust }}
-        run: cargo run -p ci -- cargo-check-example
 
   check-documents:
     strategy:
@@ -130,8 +114,8 @@ jobs:
         os: [ubuntu-latest]
         rust: [stable]
     runs-on: ${{ matrix.os }}
-    needs: [check-commit-message, cargo-clippy, cargo-format, cargo-check]
-    if: needs.check-commit-message.outputs.is_draft == false
+    needs: check-commit-message
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -145,3 +129,76 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Check documents for ${{ matrix.os }} with ${{ matrix.rust }}
         run: cargo run -p ci -- cargo-doc
+
+  cargo-check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
+    runs-on: ${{ matrix.os }}
+    needs:
+      [check-commit-message, cargo-clippy, cargo-format, typo, check-documents]
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - name: Run cargo-check for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-check
+
+  cargo-mirai:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        rust: [nightly]
+    runs-on: ${{ matrix.os }}
+    needs: [check-commit-message, cargo-check]
+    if: ${{ needs.check-commit-message.outputs.is_draft == 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git
+            ./target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+      - uses: jwlawson/actions-setup-cmake@v1
+        with:
+          cmake-version: "latest"
+      - uses: egor-tensin/setup-clang@v1
+        with:
+          version: "latest"
+      - name: Verify cmake and clang installation
+        run: cmake --version &&  clang --version
+      - name: Check if mirai is installed
+        id: check-mirai-installed
+        run: |
+          temp_file=$(mktemp)
+          cargo mirai --version > $temp_file 2>&1 || true
+          if [ -f $temp_file ]; then
+            if cat $temp_file | grep -q "error"; then
+              echo "is_mirai_exist=false" >> $GITHUB_OUTPUT
+            else
+              echo "is_mirai_exist=true" >> $GITHUB_OUTPUT
+            fi
+          fi
+          rm -f "$temp_file"
+      - name: Install mirai if needed
+        if: ${{ steps.check-mirai-installed.outputs.is_mirai_exist == 'false' }}
+        run: |
+          git clone https://github.com/endorlabs/MIRAI.git
+          cd MIRAI
+          cargo install --locked --path ./checker
+          cd $GITHUB_WORKSPACE
+      - name: Run mirai for ${{ matrix.os }} with ${{ matrix.rust }}
+        run: cargo run -p ci -- cargo-mirai
