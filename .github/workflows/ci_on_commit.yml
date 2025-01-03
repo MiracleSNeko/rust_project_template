@@ -186,8 +186,8 @@ jobs:
           temp_file=$(mktemp)
           cargo mirai --version > $temp_file 2>&1 || true
           if [ -f $temp_file ]; then
-            output=$(cat $temp_file)
-            echo "mirai_version=${output}" >> $GITHUB_OUTPUT
+            cat $temp_file
+            echo "mirai_version=$(cat $temp_file)" >> $GITHUB_OUTPUT
           fi
           rm -f "$temp_file"
       - name: Install mirai if needed
