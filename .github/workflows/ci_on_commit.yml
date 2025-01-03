@@ -186,12 +186,15 @@ jobs:
           temp_file=$(mktemp)
           cargo mirai --version > $temp_file 2>&1 || true
           if [ -f $temp_file ]; then
-            cat $temp_file
-            echo "mirai_version=$(cat $temp_file)" >> $GITHUB_OUTPUT
+            if cat $temp_file | grep -q "error"; then
+              echo "is_mirai_exist=false" >> $GITHUB_OUTPUT
+            else
+              echo "is_mirai_exist=true" >> $GITHUB_OUTPUT
+            fi
           fi
           rm -f "$temp_file"
       - name: Install mirai if needed
-        if: ${{ startsWith(steps.check-mirai-installed.outputs.mirai_version, 'mirai') == 'false' }}
+        if: ${{ steps.check-mirai-installed.outputs.mirai_version == 'false' }}
         run: |
           git clone https://github.com/endorlabs/MIRAI.git
           cd MIRAI
